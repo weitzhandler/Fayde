@@ -58,6 +58,8 @@
   </PropertyGroup>
   <ItemGroup>
     <TypeScriptCompile Include="HeaderedItemsControl.ts" />
+    <TypeScriptCompile Include="ChildWindow.ts" />
+    <TypeScriptCompile Include="CancelEventArgs.ts" />
     <Content Include="Themes\awaiting-generic.xml" />
     <TypeScriptCompile Include="ButtonSpinner.ts" />
     <TypeScriptCompile Include="ContextMenu.ts" />

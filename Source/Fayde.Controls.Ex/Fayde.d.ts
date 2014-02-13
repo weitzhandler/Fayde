@@ -1,4 +1,3 @@
-/// <reference path="require.d.ts" />
 declare module Fayde.Xaml {
     class XamlDocument {
         private _RequiredDependencies;
@@ -184,6 +183,7 @@ declare module Fayde {
         public CreateNode(): Fayde.XamlNode;
         public Name : string;
         public Parent : XamlObject;
+        public FindName(name: string): XamlObject;
         public Clone(): XamlObject;
         public CloneCore(source: XamlObject): void;
         public IsInheritable(propd: DependencyProperty): boolean;
@@ -837,7 +837,6 @@ declare module Fayde {
         public Unloaded: Fayde.RoutedEvent<Fayde.RoutedEventArgs>;
         public LayoutUpdated: MulticastEvent<EventArgs>;
         public OnApplyTemplate(): void;
-        public FindName(name: string): Fayde.XamlObject;
         public UpdateLayout(): void;
         private _StyleChanged(args);
         private _AlignmentChanged(args);
@@ -1463,6 +1462,7 @@ declare module Fayde.Controls {
         public ClearRoot(): void;
         public _ContentChanged(args: IDependencyPropertyChangedEventArgs): void;
         public _ContentTemplateChanged(): void;
+        private _GetContentTemplate(type);
     }
     class ContentPresenter extends Fayde.FrameworkElement {
         public XamlNode: ContentPresenterNode;
@@ -2934,6 +2934,7 @@ declare module Fayde {
 }
 declare module Fayde {
     class DataTemplate extends Fayde.Xaml.FrameworkTemplate {
+        public TargetType: Function;
         constructor();
         public GetVisualTree(bindingSource?: Fayde.DependencyObject): Fayde.UIElement;
     }
@@ -3334,6 +3335,7 @@ declare module Fayde.Data {
         public GetValue(propd: DependencyProperty): any;
         public OnAttached(element: Fayde.DependencyObject): void;
         private _OnSourceAvailable();
+        private _FindSource();
         private _FindSourceByElementName();
         public OnDetached(element: Fayde.DependencyObject): void;
         public IsBrokenChanged(): void;
@@ -3346,8 +3348,7 @@ declare module Fayde.Data {
         public OnDataContextChanged(newDataContext: any): void;
         private _Invalidate();
         public Refresh(): void;
-        private _ConvertFromTargetToSource(value);
-        private _ConvertFromSourceToTarget(value);
+        private _ConvertFromTargetToSource(binding, node, value);
         private _ConvertToType(propd, value);
         private _MaybeEmitError(message, exception);
         private _AttachToNotifyError(element);
@@ -3472,7 +3473,8 @@ declare module Fayde.Data {
 declare module Fayde.Data {
     class RelativeSource {
         public Mode: Data.RelativeSourceMode;
-        public AncestorLevel: number;
+        private _AncestorLevel;
+        public AncestorLevel : number;
         public AncestorType: Function;
         constructor(mode?: Data.RelativeSourceMode);
     }
@@ -3622,6 +3624,8 @@ declare module Fayde {
         static ThemeProperty: DependencyProperty;
         public Resources: Fayde.ResourceDictionary;
         public Theme: Fayde.Theme;
+        public Resized: Fayde.RoutedEvent<Fayde.SizeChangedEventArgs>;
+        public OnResized(oldSize: size, newSize: size): void;
         constructor();
         public RootVisual : Fayde.UIElement;
         public Resolve(): IAsyncRequest<Application>;
@@ -3991,6 +3995,8 @@ declare module Fayde.Media.Animation {
         private IsAfterBeginTime(nowTime);
         public GetNaturalDuration(): Duration;
         public GetNaturalDurationCore(): Duration;
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
     class TimelineCollection extends Fayde.XamlObjectCollection<Timeline> {
     }
@@ -4068,6 +4074,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4075,6 +4083,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4187,6 +4197,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4194,6 +4206,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4330,6 +4344,8 @@ declare module Fayde.Media.Animation {
         private _ToChanged(args);
         private _ByChanged(args);
         private _EasingChanged(args);
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4337,6 +4353,8 @@ declare module Fayde.Media.Animation {
         static Annotations: {
             ContentProperty: ImmutableDependencyProperty<Animation.KeyFrameCollection>;
         };
+        public GenerateFrom(): Animation.AnimationBase;
+        public GenerateTo(isEntering: boolean): Animation.AnimationBase;
     }
 }
 declare module Fayde.Media.Animation {
@@ -4890,6 +4908,7 @@ declare module Fayde.Media {
         public _Raw: number[];
         private _Inverse;
         constructor(raw?: number[]);
+        static Identity : Matrix;
         public M11 : number;
         public M12 : number;
         public M21 : number;
@@ -4900,6 +4919,7 @@ declare module Fayde.Media {
         private _Listeners;
         public Listen(func: (newMatrix: Matrix) => void): IMatrixChangedListener;
         private _OnChanged();
+        public Clone(): Matrix;
         public toString(): string;
     }
 }
@@ -5189,6 +5209,7 @@ declare module Fayde.Media {
         static MatrixProperty: DependencyProperty;
         public Matrix: Media.Matrix;
         public _BuildValue(): number[];
+        public Clone(): MatrixTransform;
         private _MatrixListener;
         public _MatrixChanged(args: IDependencyPropertyChangedEventArgs): void;
     }
@@ -5280,6 +5301,7 @@ declare module Fayde.Media.VSM {
             ContentProperty: ImmutableDependencyProperty<VSM.VisualStateCollection>;
         };
         private _CurrentStoryboards;
+        public CurrentStoryboards : Media.Animation.Storyboard[];
         public CurrentStateChanging: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentStateChanged: MulticastEvent<VisualStateChangedEventArgs>;
         public CurrentState: VSM.VisualState;
@@ -5312,7 +5334,6 @@ declare module Fayde.Media.VSM {
         private static _GetTemplateRoot(control);
         private static _TryGetState(groups, stateName, data);
         private static _GetTransition(element, group, from, to);
-        private static _GenerateDynamicTransitionAnimations(root, group, state, transition);
     }
 }
 declare module Fayde.Media.VSM {
@@ -5320,7 +5341,8 @@ declare module Fayde.Media.VSM {
         public From: string;
         public To: string;
         public Storyboard: Media.Animation.Storyboard;
-        public GeneratedDuration: Duration;
+        private _GeneratedDuration;
+        public GeneratedDuration : Duration;
         public DynamicStoryboardCompleted: boolean;
         public ExplicitStoryboardCompleted: boolean;
         public GeneratedEasingFunction: Media.Animation.EasingFunctionBase;
@@ -5340,6 +5362,7 @@ declare module Fayde.MVVM {
         public Execute(parameter: any): void;
         public CanExecute(parameter: any): boolean;
         public CanExecuteChanged: MulticastEvent<EventArgs>;
+        public ForceCanExecuteChanged(): void;
     }
 }
 declare module Fayde.MVVM {

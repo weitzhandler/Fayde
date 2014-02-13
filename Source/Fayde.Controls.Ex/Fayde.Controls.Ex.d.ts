@@ -19,6 +19,81 @@ declare module Fayde.Controls {
     }
 }
 declare module Fayde.Controls {
+    class ChildWindow extends Controls.ContentControl {
+        static HasCloseButtonProperty: DependencyProperty;
+        public HasCloseButton: boolean;
+        private OnHasCloseButtonChanged(args);
+        static OverlayBrushProperty: DependencyProperty;
+        public OverlayBrush: Fayde.Media.Brush;
+        private OnOverlayBrushChanged(args);
+        static OverlayOpacityProperty: DependencyProperty;
+        public OverlayOpacity: number;
+        private OnOverlayOpacityChanged(args);
+        static TitleProperty: DependencyProperty;
+        public Title: any;
+        public Closed: MulticastEvent<EventArgs>;
+        public Closing: MulticastEvent<Controls.CancelEventArgs>;
+        private static _OpenWindowCount;
+        private static _PrevEnabledState;
+        private _CloseButton;
+        private _ContentRoot;
+        private _Chrome;
+        private _Overlay;
+        private _ContentPresenter;
+        private _Opened;
+        private _Closed;
+        private _ChildWindowPopup;
+        private _Root;
+        private _IsMouseCaptured;
+        private _ClickPoint;
+        private _WindowPosition;
+        private _ContentRootTransform;
+        private _DesiredContentWidth;
+        private _DesiredContentHeight;
+        private _DesiredMargin;
+        private _IsClosing;
+        private _IsOpen;
+        private IsOpen;
+        private _DialogResult;
+        public DialogResult : boolean;
+        constructor();
+        public OnApplyTemplate(): void;
+        private FindStoryboards();
+        public GoToStates(gotoFunc: (state: string) => boolean): void;
+        private SubscribeEvents();
+        private UnsubscribeEvents();
+        private SubscribeStoryboardEvents();
+        private SubscribeTemplateEvents();
+        private UnsubscribeTemplateEvents();
+        private Closing_Completed(sender, e);
+        private Opening_Completed(sender, e);
+        public OnOpened(): void;
+        private CloseButton_Click(sender, e);
+        public Show(): void;
+        private OnWindowShowing();
+        public Close(): void;
+        private OnWindowClosing();
+        private Chrome_MouseLeftButtonDown(sender, e);
+        private Chrome_MouseLeftButtonUp(sender, e);
+        private Chrome_MouseMove(sender, e);
+        private ContentPresenter_SizeChanged(sender);
+        private Page_Resized(sender, e);
+        private RootVisual_GotFocus(sender, e);
+        private ChildWindow_SizeChanged(sender, e);
+        private ChildWindow_KeyDown(sender, e);
+        private ChildWindow_LostFocus(sender, e);
+        private UpdateOverlaySize();
+        private UpdatePosition();
+        private UpdateRenderTransform();
+        private UpdateContentRootTransform(x, y);
+    }
+}
+declare module Fayde.Controls {
+    class CancelEventArgs extends EventArgs {
+        public Cancel: boolean;
+    }
+}
+declare module Fayde.Controls {
     class Spinner extends Controls.Control {
         static ValidSpinDirectionProperty: DependencyProperty;
         public ValidSpinDirection: Controls.ValidSpinDirections;
