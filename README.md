@@ -5,7 +5,7 @@
 
 Inspired by Silverlight; XAML engine using Javascript and rendering to the HTML5 Canvas.
 
-Please check out the [wiki](https://github.com/wsick/Fayde/wiki) for more information.
+Please check out the [wiki](https://github.com/wsick/Fayde/wiki), or [my website](http://wsick.github.io/Fayde/), for more information.
 
 ## Dependencies
 
